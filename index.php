@@ -14,8 +14,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
         $stmt->close();
     }
 }
-$open_task=$conn->query('select *from tasks where is_completed=0');
-$close_task=$conn->query('select *from tasks where is_completed=1');
+$open_task=$conn->query('select * from tasks where is_completed=0');
+$in_progress_task=$conn->query('select * from tasks where is_completed=1');
+$close_task=$conn->query('select * from tasks where is_completed=2');
+$deleted_task=$conn->query('select * from tasks where is_completed=3');
 
 ?>
 
@@ -39,7 +41,7 @@ $close_task=$conn->query('select *from tasks where is_completed=1');
             </div>
         </form>
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-3">
                 <h2 class="text-center">OPEN TASKs</h2>
                 <ul class="list-group">
                     <?php if($open_task->num_rows >0) { ?>
@@ -47,7 +49,7 @@ $close_task=$conn->query('select *from tasks where is_completed=1');
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <?php echo $row['task_name'];?>
                         <div>
-                            <a href="completed-task.php?id=<?php echo $row['id']; ?>" class="btn btn-primary">Complete</a>
+                            <a href="inprogress_task.php?id=<?php echo $row['id']; ?>" class="btn btn-primary"> Progress</a>
                             <a href="deleted-task.php?id=<?php echo $row['id']; ?>" class="btn btn-danger">Delete</a>
                         </div>
                     </li>
@@ -57,7 +59,25 @@ $close_task=$conn->query('select *from tasks where is_completed=1');
                     <?php }?>
                 </ul>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-3">
+                <h2 class="text-center">In Progress TASKs</h2>
+                <ul class="list-group">
+                    <?php if($in_progress_task->num_rows >0) { ?>
+                        <?php while($row=$in_progress_task->fetch_assoc()){?>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <?php echo $row['task_name'];?>
+                        <div>
+                            <a href="closed_tasks.php?id=<?php echo $row['id']; ?>" class="btn btn-primary">Close</a>
+                            <a href="deleted-task.php?id=<?php echo $row['id']; ?>" class="btn btn-danger">Delete</a>
+                        </div>
+                    </li>
+                    <?php }}else{?>
+
+                        <li class="list-group-item">No task open</li>
+                    <?php }?>
+                </ul>
+            </div>
+            <div class="col-md-3">
                 <h2 class="text-center">Closed Tasks</h2>
                 <ul class="list-group">
                 <?php if($close_task->num_rows >0) { ?>
@@ -67,6 +87,21 @@ $close_task=$conn->query('select *from tasks where is_completed=1');
                         <div>
                             <a href="deleted-task.php?id=<?php echo $row['id']; ?>" class="btn btn-danger">Delete</a>
                         </div>
+                    </li>
+                    <?php }}else{?>
+
+                    <li class="list-group-item">No task close</li>
+                    <?php }?>
+                </ul>
+            </div>
+            <div class="col-md-3">
+                <h2 class="text-center">Deleted Tasks</h2>
+                <ul class="list-group">
+                <?php if($deleted_task->num_rows >0) { ?>
+                    <?php while($row=$deleted_task->fetch_assoc()){?>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <?php echo $row['task_name'];?>
+                       
                     </li>
                     <?php }}else{?>
 
