@@ -4,6 +4,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 include 'db.php';
+include 'send_mailer.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST'){
     $task_name = $_POST['task_name'];
     if(!empty($task_name)){
@@ -12,6 +13,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
         $stmt->bind_param('s', $task_name);        
         $stmt->execute();
         $stmt->close();
+
+        $to="EMAILTO@gmail.com";
+        $subject="New Task Added";
+        $message="A new task has been added to your TODO-LIST: $task_name";
+        sendMail($to, $subject, $message); 
+
     }
 }
 $open_task=$conn->query('select * from tasks where is_completed=0');
