@@ -2,7 +2,10 @@
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-
+session_start();
+if(!isset($_SESSION['user_id'])){
+    header('Location: login.php');
+}
 include 'db.php';
 include 'send_mailer.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST'){
@@ -37,6 +40,36 @@ $deleted_task=$conn->query('select * from tasks where is_completed=3');
     <title>TODO-LIST</title>
 </head>
 <body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <!-- Logo Text -->
+            <a class="navbar-brand" href="#">ToDoList</a>
+            <!-- Toggle Button for Mobile View -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <!-- Menu Items -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <?php if(isset($_SESSION['user_id'])){?>
+                    
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="Logout.php">Logout</a>
+                    </li>
+                    <?php }else{?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="login.php">login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="register.php">Register</a>
+                    </li>
+                    <?php }?>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
     <div class="container mt-5">
         <h1 class="text-center">
             code with me
