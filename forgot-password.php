@@ -1,28 +1,36 @@
 <?php
-session_start();
+
 include 'db.php';
+include 'send_mailer.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
     $email = $_POST['email'];
-    $password = $_POST['password'];
-    $stmt = $conn->prepare("select id, password from users where email=?");
+    $stmt = $conn->prepare("SELECT id FROM users WHERE email=?");
     $stmt->bind_param('s', $email);
     $stmt->execute();
     $stmt->store_result();
-    $stmt->bind_result($user_id,$hashed_password);
-    $stmt->fetch();
-
-    if ($stmt->num_rows > 0 && password_verify($password,$hashed_password)) {
-        $_SESSION['user_id'] = $user_id;
-        header('Location: index.php');
-    } 
-        else {
-        echo "Invalid email or password";
-        }
+    if ($stmt->num_rows > 0) {
+        $stmt->bind_result($id);
+        $reset_token = bin2hex(random_bytes(16));
+        $expiry =date('Y-m-d H:i:s',strtotime("+1 hour"));
+        $stmt = $conn->prepare("INSERT INTO passwordReset (email, token, expires_at) VALUES (?, ?, ?)");
+        $stmt->bind_param('sss', $email, $reset_token, $expiry);
+        $stmt->execute();
+        $stmt->close();
+        $reset_link = "http://localhost/CWO/reset-password.php?token=".$reset_token;
+        $to = $email;
+        $subject = "Reset Password";
+        $body = "Click <a href='$reset_link'>here</a> to reset your password";
+        sendMail($to, $subject, $body);
+        echo "Password reset link has been sent to your email. Please check your inbox.";
+    }else{
+        echo "Email not found";
+    }
 }
 
 ?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -48,24 +56,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="row justify-content-center">
             <div class="col-md-4">
                 <div class="form-container">
-                    <h3 class="text-center mb-4">Login</h3>
-                    <form method="POST" action="login.php">
+                    <h3 class="text-center mb-4">Forgot Password</h3>
+                    <form method="POST" action="forgot-password.php">
                         <div class="mb-3">
                             <label for="email" class="form-label">Email</label>
                             <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email">
                         </div> 
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password">
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">Login</button>
+                        <button type="submit" class="btn btn-primary w-100">send reset link</button>
                     </form>
-                    <div class="text-center mt-3">
-                        <p> <a href="forgot-password.php">Forgot Password ? </a></p>
-                    </div>
-                    <div class="text-center mt-3">
-                        <p>don't have an account? <a href="register.php">Register</a></p>
-                    </div>
                 </div>
             </div>
         </div>

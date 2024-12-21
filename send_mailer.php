@@ -11,11 +11,11 @@ function sendMail($to, $subject, $message){
         $mail->isSMTP();
         $mail->Host       ='smtp.gmail.com';
         $mail->SMTPAuth   = true;
-        $mail->Username   = 'EMAILSEND@gmail.com';
-        $mail->Password   = 'PASSOWORD OF SMTP';
+        $mail->Username   = 'email@gmail.com';
+        $mail->Password   = 'password';
         $mail->SMTPSecure = PHPMAILER::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
-        $mail->setFrom('EMAILSEND@gmail.com', 'todo-list');
+        $mail->setFrom('email@gmail.com', 'todo-list');
         $mail->addAddress($to);
         $mail->Subject = $subject;
         $mail->Body = $message;
